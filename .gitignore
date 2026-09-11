@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Next.js build output
+my-app/.next/
+my-app/out/
+
+# Runtime uploads and local data
+server/uploads/
+
+# Logs and local tooling
+*.log
+.DS_Store
