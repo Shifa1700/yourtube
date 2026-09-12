@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Camera, CameraOff, Mic, MicOff, PhoneOff, ScreenShare, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import backendUrl from "@/lib/backendUrl";
 
 type Signal = { type: string; sdp?: string; candidate?: RTCIceCandidateInit };
 type ChatMessage = { socketId: string; userName: string; message: string; sentAt: string };
@@ -24,10 +25,6 @@ export default function VideoCall() {
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const backendUrl =
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.BACKEND_URL ||
-    "http://localhost:5000";
   const iceServers: RTCIceServer[] = [
     { urls: "stun:stun.l.google.com:19302" },
     ...(process.env.NEXT_PUBLIC_TURN_URL

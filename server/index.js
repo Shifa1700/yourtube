@@ -18,8 +18,12 @@ import watchProgressRoutes from "./routes/watchProgress.js";
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 const io = new Server(httpServer, {
-  cors: { origin: process.env.FRONTEND_URL || "http://localhost:3000" },
+  cors: { origin: allowedOrigins },
 });
 const rooms = new Map();
 
@@ -54,16 +58,17 @@ io.on("connection", (socket) => {
       signal,
     });
 
-    socket.on("call-chat", ({ roomId, message }) => {
-      if (socket.data.roomId !== roomId || typeof message !== "string") return;
-      const text = message.trim().slice(0, 500);
-      if (!text) return;
-      io.to(roomId).emit("call-chat", {
-        socketId: socket.id,
-        userName: socket.data.userName,
-        message: text,
-        sentAt: new Date().toISOString(),
-      });
+  });
+
+  socket.on("call-chat", ({ roomId, message }) => {
+    if (socket.data.roomId !== roomId || typeof message !== "string") return;
+    const text = message.trim().slice(0, 500);
+    if (!text) return;
+    io.to(roomId).emit("call-chat", {
+      socketId: socket.id,
+      userName: socket.data.userName,
+      message: text,
+      sentAt: new Date().toISOString(),
     });
   });
 
@@ -88,7 +93,7 @@ io.on("connection", (socket) => {
   });
 });
 import path from "path";
-app.use(cors());
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use("/uploads", express.static(path.join("uploads")));

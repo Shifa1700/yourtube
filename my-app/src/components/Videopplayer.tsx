@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import axiosInstance from "@/lib/axiosinstance";
 import { auth } from "@/lib/firebase";
+import { getBackendAssetUrl } from "@/lib/backendUrl";
 
 interface VideoPlayerProps {
   video: {
@@ -268,7 +269,7 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
         }}
       >
         <source
-          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video.filepath}`}
+          src={getBackendAssetUrl(video.filepath)}
           type="video/mp4"
         />
         {video.captionsUrl && (

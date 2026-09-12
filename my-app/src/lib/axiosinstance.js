@@ -1,9 +1,8 @@
 import axios from "axios";
+import backendUrl from "./backendUrl";
+
 const axiosInstance = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.BACKEND_URL ||
-    "http://localhost:5000",
- 
+  baseURL: backendUrl,
 });
+
 export default axiosInstance;

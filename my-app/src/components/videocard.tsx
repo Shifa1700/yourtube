@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { getBackendAssetUrl } from "@/lib/backendUrl";
 
 const videos = "/video/vdo.mp4";
 export default function VideoCard({ video }: any) {
@@ -10,7 +11,7 @@ export default function VideoCard({ video }: any) {
       <div className="space-y-3">
         <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
           <video
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath}`}
+            src={getBackendAssetUrl(video?.filepath)}
             controls={false}
             preload="metadata"
             className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
