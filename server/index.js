@@ -18,8 +18,21 @@ import watchProgressRoutes from "./routes/watchProgress.js";
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
+
+// Always allow browser Origins. Never reject with Error (that becomes HTTP 500).
+const configuredOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
 const io = new Server(httpServer, {
-  cors: { origin: true },
+  cors: corsOptions,
 });
 const rooms = new Map();
 
@@ -90,7 +103,29 @@ io.on("connection", (socket) => {
 });
 import path from "path";
 import { fileURLToPath } from "url";
-app.use(cors());
+
+// Explicit CORS headers so cross-origin browser calls never fail open.
+app.use((req, res, next) => {
+  const requestOrigin = req.headers.origin;
+  if (requestOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      corsOptions.methods.join(", "),
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      corsOptions.allowedHeaders.join(", "),
+    );
+  }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  return next();
+});
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 const uploadsDirectory = path.resolve(
@@ -100,6 +135,13 @@ const uploadsDirectory = path.resolve(
 app.use("/uploads", express.static(uploadsDirectory));
 app.get("/", (req, res) => {
   res.send("You tube backend is working");
+});
+app.get("/health", (req, res) => {
+  res.json({
+    ok: true,
+    cors: "open",
+    frontendUrls: configuredOrigins,
+  });
 });
 app.use(bodyParser.json());
 app.use("/user", userroutes);
