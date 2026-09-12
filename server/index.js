@@ -93,6 +93,7 @@ io.on("connection", (socket) => {
   });
 });
 import path from "path";
+import { fileURLToPath } from "url";
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -105,7 +106,11 @@ app.use(
 );
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
-app.use("/uploads", express.static(path.join("uploads")));
+const uploadsDirectory = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "uploads",
+);
+app.use("/uploads", express.static(uploadsDirectory));
 app.get("/", (req, res) => {
   res.send("You tube backend is working");
 });
