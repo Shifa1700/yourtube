@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Camera, CameraOff, Mic, MicOff, PhoneOff, ScreenShare, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import backendUrl from "@/lib/backendUrl";
+import { getSocketBackendUrl } from "@/lib/backendUrl";
 
 type Signal = { type: string; sdp?: string; candidate?: RTCIceCandidateInit };
 type ChatMessage = { socketId: string; userName: string; message: string; sentAt: string };
@@ -72,7 +72,7 @@ export default function VideoCall() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
       if (localVideo.current) localVideo.current.srcObject = stream;
-      const socket = io(backendUrl);
+      const socket = io(getSocketBackendUrl());
       socketRef.current = socket;
       socket.on("connect", () => setConnectionState("connected"));
       socket.on("disconnect", () => setConnectionState("reconnecting"));
