@@ -18,12 +18,8 @@ import watchProgressRoutes from "./routes/watchProgress.js";
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
 const io = new Server(httpServer, {
-  cors: { origin: allowedOrigins },
+  cors: { origin: true },
 });
 const rooms = new Map();
 
@@ -94,16 +90,7 @@ io.on("connection", (socket) => {
 });
 import path from "path";
 import { fileURLToPath } from "url";
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Origin is not allowed by CORS"));
-    },
-  }),
-);
+app.use(cors());
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 const uploadsDirectory = path.resolve(
